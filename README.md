@@ -11,7 +11,7 @@ Live Demos are hosted on `workers-tooling.cf/demos/router`:
 To run locally with just node:
 ```
 git clone https://github.com/cloudflare/worker-template-router
-# change just `name` in the package.json to valid string
+# change `name` in the package.json to a valid string
 # put logic in index.js
 npm install
 webpack index.js
