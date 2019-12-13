@@ -33,7 +33,7 @@ const Path = regExp => req => {
  */
 class Router {
     constructor(base) {
-        this.base = AddSlash(base)
+        this.base = base.replace(/\/$/,"")
         this.routes = []
     }
 
