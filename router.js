@@ -18,10 +18,11 @@ const Trace = Method('trace')
 const Header = (header, val) => req => req.headers.get(header) === val
 const Host = host => Header('host', host.toLowerCase())
 const Referrer = host => Header('referrer', host.toLowerCase())
+const AddSlash = s => s.replace(/\/$/,"")+"/"
 
 const Path = regExp => req => {
     const url = new URL(req.url)
-    const path = url.pathname
+    const path = AddSlash(url.pathname)
     const match = path.match(regExp) || []
     return match[0] === path
 }
@@ -31,7 +32,8 @@ const Path = regExp => req => {
  * conditions present for each request.
  */
 class Router {
-    constructor() {
+    constructor(base) {
+        this.base = AddSlash(base)
         this.routes = []
     }
 
@@ -44,39 +46,39 @@ class Router {
     }
 
     connect(url, handler) {
-        return this.handle([Connect, Path(url)], handler)
+        return this.handle([Connect, Path(this.base+AddSlash(url))], handler)
     }
 
     delete(url, handler) {
-        return this.handle([Delete, Path(url)], handler)
+        return this.handle([Delete, Path(this.base+AddSlash(url))], handler)
     }
 
     get(url, handler) {
-        return this.handle([Get, Path(url)], handler)
+        return this.handle([Get, Path(this.base+AddSlash(url))], handler)
     }
 
     head(url, handler) {
-        return this.handle([Head, Path(url)], handler)
+        return this.handle([Head, Path(this.base+AddSlash(url))], handler)
     }
 
     options(url, handler) {
-        return this.handle([Options, Path(url)], handler)
+        return this.handle([Options, Path(this.base+AddSlash(url))], handler)
     }
 
     patch(url, handler) {
-        return this.handle([Patch, Path(url)], handler)
+        return this.handle([Patch, Path(this.base+AddSlash(url))], handler)
     }
 
     post(url, handler) {
-        return this.handle([Post, Path(url)], handler)
+        return this.handle([Post, Path(this.base+AddSlash(url))], handler)
     }
 
     put(url, handler) {
-        return this.handle([Put, Path(url)], handler)
+        return this.handle([Put, Path(this.base+AddSlash(url))], handler)
     }
 
     trace(url, handler) {
-        return this.handle([Trace, Path(url)], handler)
+        return this.handle([Trace, Path(this.base+AddSlash(url))], handler)
     }
 
     all(handler) {
