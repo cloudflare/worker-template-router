@@ -12,9 +12,13 @@ const paths = [
   ['/secret', () => Render.error("Access Restricted", 403)],
   ['/cf', () => Render.res("https://cloudflare.com", 'redirect')],
   ['/request', req => Render.res(JSON.stringify(req), 'json')],
-  ['/q', req => {
+  ['/q', req => { // /q?id=12345&name=foo&color=blue&style=bar
     const params = (new URL(req.url)).searchParams
-    return Render.res(JSON.stringify({id: params.get('id'), name: params.get('name')}), 'json')
+    let pm = {}
+    for (let p of params) {
+      pm[p[0]] = p[1]
+    }
+    return Render.res(JSON.stringify(pm), 'json')
   }]
 ]
 
