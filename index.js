@@ -10,15 +10,17 @@ const paths = [
   ['/json', () => jsonLoader()],
   ['/robot.txt', () => Render.res("User-agent: *\nAllow: /html", 'txt')],
   ['/secret', () => Render.error("Access Restricted", 403)],
-  ['/cf', () => Render.res("https://cloudflare.com", 'redirect')],
-  ['/request', req => Render.res(JSON.stringify(req), 'json')],
-  ['/q', req => { // /q?id=12345&name=foo&color=blue&style=bar
+  ['/cf', () => Render.redirect("https://cloudflare.com")],
+  ['/profile', req => {
     const params = (new URL(req.url)).searchParams
     let pm = {}
     for (let p of params) {
       pm[p[0]] = p[1]
     }
-    return Render.res(JSON.stringify(pm), 'json')
+    if(pm.login && pm.token){
+      return Render.res(JSON.stringify(pm), 'json')
+    }
+    return Render.error("Invalid Login", 403)
   }]
 ]
 
@@ -33,6 +35,27 @@ async function htmlLoader() {
     const template = await Render.loadTemplate()
     const html = await Render.loadContent(template)
     return Render.res(html, 'html')
+  } catch (err) {
+    return Render.error(err)
+  }
+}
+
+function hash (str) {
+  return crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
+}
+
+async function validate(req) {
+  try {
+    let body = {}
+    const formData = await req.formData()
+    for (let entry of formData.entries()) {
+      body[entry[0]] = entry[1]
+    }
+    const hashed = await hash(body.password)
+    return Render.redirect("/profile" +
+      "?login=" + true +
+      "&email=" + body.email +
+      "&token=" + btoa(hashed), 'redirect')
   } catch (err) {
     return Render.error(err)
   }
@@ -54,13 +77,14 @@ async function handleRequest(request) {
   try {
     const route = new Router(Render.subPath)
     const path = (new URL(request.url)).pathname
+    Render.base = (request.url).replace(/\/html.*/,"")
     if (path.includes(Render.assetPath)) {
       await Render.loadAssets(route)
     } else {
       /* Loading GET Paths */
       await Render.loadPaths(route, paths)
       /* Loading Other Paths */
-      route.post('/', () => Render.res())
+      route.post('/auth', req => validate(req))
       route.post('.*/foo', () => Render.res("foo")) // Accepts RegEx as path
     }
     const result = await route.resolve(request)
