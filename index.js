@@ -2,26 +2,16 @@ const Router = require('./lib/router')
 const Render = require('./lib/render')
 Render.subPath = '/html' // Base path
 Render.assetPath = '/public' // Path of assets to load
-Render.title = "Hello World!"
+Render.title = "{{ project-name }}"
 
 /* Custom GET Paths and their Handlers */
 const paths = [
-  ['/', () => htmlLoader()],
+  ['/', () => htmlLoader({ name: 'login' })],
   ['/json', () => jsonLoader()],
   ['/robot.txt', () => Render.res("User-agent: *\nAllow: /html", 'txt')],
   ['/secret', () => Render.error("Access Restricted", 403)],
   ['/cf', () => Render.redirect("https://cloudflare.com")],
-  ['/profile', req => {
-    const params = (new URL(req.url)).searchParams
-    let pm = {}
-    for (let p of params) {
-      pm[p[0]] = p[1]
-    }
-    if(pm.login && pm.token){
-      return Render.res(JSON.stringify(pm), 'json')
-    }
-    return Render.error("Invalid Login", 403)
-  }]
+  ['/profile', req => profile(req)]
 ]
 
 /* Event Listener */
@@ -30,18 +20,29 @@ addEventListener('fetch', event => {
 })
 
 /* Custom Loaders */
-async function htmlLoader() {
+async function htmlLoader(handle) {
   try {
-    const template = await Render.loadTemplate()
-    const html = await Render.loadContent(template)
+    const html = await Render.loadContent(handle)
     return Render.res(html, 'html')
   } catch (err) {
     return Render.error(err)
   }
 }
 
-function hash (str) {
+function hash(str) {
   return crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
+}
+
+function profile(req) {
+  const params = (new URL(req.url)).searchParams
+  let pm = {}
+  for (let p of params) {
+    pm[p[0]] = p[1]
+  }
+  if (pm.login && pm.token) {
+    return htmlLoader({ name: 'profile', params: pm })
+  }
+  return Render.error("Invalid Login", 403)
 }
 
 async function validate(req) {
@@ -77,7 +78,7 @@ async function handleRequest(request) {
   try {
     const route = new Router(Render.subPath)
     const path = (new URL(request.url)).pathname
-    Render.base = (request.url).replace(/\/html.*/,"")
+    Render.base = (request.url).replace(/\/html.*/, "")
     if (path.includes(Render.assetPath)) {
       await Render.loadAssets(route)
     } else {
