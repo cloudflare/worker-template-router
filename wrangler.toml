@@ -1,4 +1,4 @@
-name = "router"
+name = "{{ project-name }}"
 type = "webpack"
 
 account_id = ""
