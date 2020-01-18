@@ -16,7 +16,7 @@ function handler(request) {
 }
 
 async function handleRequest(request) {
-    const r = new Router()
+    const r = new Router("/api/v1") // The base path is passed as parameter
     // Replace with the approriate paths and handlers
     r.get('.*/bar', () => new Response('responding for /bar'))
     r.get('.*/foo', req => handler(req))
