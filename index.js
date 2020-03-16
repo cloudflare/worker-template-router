@@ -15,16 +15,15 @@ function handler(request) {
     return new Response(body, init)
 }
 
+const r = new Router()
+// Replace with the approriate paths and handlers
+r.get('.*/bar', () => new Response('responding for /bar'))
+r.get('.*/foo', req => handler(req))
+r.post('.*/foo.*', req => handler(req))
+r.get('/demos/router/foo', req => fetch(req)) // return the response from the origin
+
+r.get('/', () => new Response('Hello worker!')) // return a default message for the root route
+
 async function handleRequest(request) {
-    const r = new Router()
-    // Replace with the approriate paths and handlers
-    r.get('.*/bar', () => new Response('responding for /bar'))
-    r.get('.*/foo', req => handler(req))
-    r.post('.*/foo.*', req => handler(req))
-    r.get('/demos/router/foo', req => fetch(req)) // return the response from the origin
-
-    r.get('/', () => new Response('Hello worker!')) // return a default message for the root route
-
-    const resp = await r.route(request)
-    return resp
+    return r.route(request)
 }
