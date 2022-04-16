@@ -74,7 +74,7 @@ Visit any page that doesn't exist (e.g. /foobar) to see it in action.
 router.all("*", () => new Response("404, not found!", { status: 404 }))
 
 /*
-This snippet ties our worker to the router we deifned above, all incoming requests
+This snippet ties our worker to the router we defined above, all incoming requests
 are passed to the router where your routes are called and the response is sent.
 */
 addEventListener('fetch', (e) => {
