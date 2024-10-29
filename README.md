@@ -1,3 +1,10 @@
+
+## ⚠️ Warning: This template is no longer maintained
+
+Create workers [directly from command-line](https://developers.cloudflare.com/workers/get-started/guide/) using `npm create cloudflare@latest` instead.
+
+---
+
 ## Router
 
 This template demonstrates using the [`itty-router`](https://github.com/kwhitley/itty-router) package to add routing to your Cloudflare Workers.
