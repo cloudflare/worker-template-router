@@ -37,9 +37,9 @@ router.get("/example/:text", ({ params }) => {
 /*
 This shows a different HTTP method, a POST.
 
-Try send a POST request using curl or another tool.
+Try to send a POST request using curl or another tool.
 
-Try the below curl command to send JSON:
+Try the curl command below to send JSON:
 
 $ curl -X POST <worker> -H "Content-Type: application/json" -d '{"abc": "def"}'
 */
@@ -74,7 +74,7 @@ Visit any page that doesn't exist (e.g. /foobar) to see it in action.
 router.all("*", () => new Response("404, not found!", { status: 404 }))
 
 /*
-This snippet ties our worker to the router we deifned above, all incoming requests
+This snippet ties our worker to the router we defined above, all incoming requests
 are passed to the router where your routes are called and the response is sent.
 */
 addEventListener('fetch', (e) => {
